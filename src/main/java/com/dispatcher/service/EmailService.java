@@ -1,6 +1,7 @@
 package com.dispatcher.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -24,16 +25,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dispatcher.exception.ResourceNotFoundException;
 import com.dispatcher.model.DispatcherDb;
 import com.dispatcher.model.EmailConfig;
-import com.dispatcher.model.Event;
 //import com.dispatcher.service.MessageParser;
 import com.dispatcher.repository.DispatcherDbRepository;
 
 @Service
 public class EmailService {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(DispatcherDbService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 	
-	Event event= new Event();
+	//Event event= new Event();
 	
 	@Autowired
 	private EmailConfig emailConfig;
@@ -65,20 +65,25 @@ public class EmailService {
 	
 	@Scheduled(fixedRate = 5000)
 	public synchronized String read() throws MessagingException, IOException {
-		 
+		 String endpoint = "http://localhost:8080/dispatcher/v1.0/email";
 		 try {
 		
 		emailFolder.open(Folder.READ_ONLY);
 		Message[] messages = emailFolder.getMessages();
 		for (int i = 0; i < messages.length; i++) {
 			Message message = messages[i];
-			//System.out.println("Subject: "+message.getSubject());
-			//System.out.println("Body: "+MessageParser.getMessageBody(message));
+			System.out.println("Subject: "+message.getSubject());
+			System.out.println("Body: "+MessageParser.getMessageBody(message));
 			
- 		    event.setSubject(message.getSubject());
- 		    event.setBody(MessageParser.getMessageBody(message));
+ 		    //event.setSubject(message.getSubject());
+ 		    //event.setBody(MessageParser.getMessageBody(message));
+			DispatcherDb dispatcherDb = new DispatcherDb();
+			dispatcherDb.setAction(endpoint);
+			dispatcherDb.setValidation(message.getSubject());
+			dispatcherDbRepository.save(dispatcherDb);
 			
-			email+="Subject: "+message.getSubject()+"\n"+"Body:"+MessageParser.getMessageBody(message);		
+			email+="Subject: "+message.getSubject()+"\n"+"Body:"+MessageParser.getMessageBody(message);	
+			
 			
 		}
 		
@@ -90,19 +95,21 @@ public class EmailService {
 				
 			}
 		 return email;
-	 }	
-	
-//	public ResponseEntity<List<DispatcherDb>> getDispatcherDbByValidation(String dvalidation)
-//			throws ResourceNotFoundException {
-//		
-//		LOGGER.info("Start process");
-//		    List<DispatcherDb> dispatcherDb = dispatcherDbRepository.findByValidation(dvalidation);
-//				return ResponseEntity.ok().body(dispatcherDb);
-//	}
-//	
-//	
-//	
-	
-	
-	
+	 }		
+	public ResponseEntity<List<String>> getDispatcherDbByValidation(String checkValidation)
+			throws ResourceNotFoundException {
+		
+		LOGGER.info("Start process");
+		
+		
+		    List<DispatcherDb> dispatcherDbs = dispatcherDbRepository.findByValidation(checkValidation);
+		    List<String> actions = new ArrayList<>();
+		    
+		    for(DispatcherDb dispatcherDb: dispatcherDbs) {
+		    	
+		    	actions.add(dispatcherDb.getAction());
+		    	
+		    }
+				return ResponseEntity.ok().body(actions);
+	}
 }

@@ -7,10 +7,13 @@ import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dispatcher.exception.ResourceNotFoundException;
 import com.dispatcher.service.EmailService;
 
 
@@ -24,7 +27,7 @@ public class EmailController {
 	Folder emailFolder;
 	
 	 @GetMapping(
-	   	        value = "/emails",
+	   	        value = "/email",
 	   	        produces = MediaType.APPLICATION_JSON_VALUE)
 	 synchronized String read() throws MessagingException, IOException {
 		 
@@ -32,5 +35,14 @@ public class EmailController {
 	
 		 return emailService.read();
 	 }
+	 
+	 @GetMapping(
+			 value = "/dispatcher", params = "validation",
+	   	        produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<String>> getDispatcherDbByValidation(@RequestParam(value = "validation") String checkValidation)
+			throws ResourceNotFoundException {
+		 return emailService.getDispatcherDbByValidation(checkValidation);
+	}
+	  
 
 }

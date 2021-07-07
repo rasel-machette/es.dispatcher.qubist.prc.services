@@ -28,7 +28,7 @@ import java.util.Collections;
 @EnableSwagger2
 public class SwaggerConfiguration {
 	private ApiInfo apiInfo() {
-		        return new ApiInfo("Arya DB API", "These API permite to insert Story and Proposal attributes in DB, you can also get all attributes using get medthod. You can also update, delete attributes ", "API v1.0.1", "Terms of service",
+		        return new ApiInfo("Dispatcher API", "Using these api we can detect new emails, matche subject with database and send subject and body to the endpoint ", "API v1.0.1", "Terms of service",
 		          new Contact("rasel-machette","http://localhost:8080/swagger-ui", "md.rasel@machette.tech"),
 		          "License of API", "API license URL", Collections.emptyList());
 		    }
