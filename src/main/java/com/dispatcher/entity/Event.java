@@ -1,4 +1,4 @@
-package com.dispatcher.model;
+package com.dispatcher.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,8 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="DispatcherDb")
-public class DispatcherDb {
+@Table(name="Event")
+public class Event {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -20,11 +20,11 @@ public class DispatcherDb {
 	@Column(name = "Validation")
 	private String validation;
 
-	public DispatcherDb() {
+	public Event() {
 		super();
 	}
 
-	public DispatcherDb(Long id, String action, String validation) {
+	public Event(Long id, String action, String validation) {
 		super();
 		this.id = id;
 		this.action = action;

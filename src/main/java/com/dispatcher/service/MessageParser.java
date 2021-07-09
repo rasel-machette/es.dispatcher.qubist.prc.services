@@ -27,7 +27,7 @@ public class MessageParser {
 			BodyPart bodyPart = mimeMultipart.getBodyPart(i);
 			if (bodyPart.isMimeType("text/plain")) {
 				result = result  + bodyPart.getContent();
-				break; // without break same text appears twice in my tests
+				break; 
 			} else if (bodyPart.isMimeType("text/html")) {
 				String html = (String) bodyPart.getContent();
 				result = result  + org.jsoup.Jsoup.parse(html).text();

@@ -23,15 +23,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dispatcher.exception.ResourceNotFoundException;
-import com.dispatcher.model.DispatcherDb;
-import com.dispatcher.model.EmailConfig;
+import com.dispatcher.repository.EventRepository;
+import com.dispatcher.entity.Event;
+import com.dispatcher.entity.EmailConfig;
 //import com.dispatcher.service.MessageParser;
-import com.dispatcher.repository.DispatcherDbRepository;
+
 
 @Service
 public class EmailService {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 	
 	//Event event= new Event();
 	
@@ -39,7 +38,7 @@ public class EmailService {
 	private EmailConfig emailConfig;
 	
 	@Autowired
-	private DispatcherDbRepository dispatcherDbRepository;
+	private EventRepository eventRepository;
 
 	Folder emailFolder;
 	Store store;
@@ -47,7 +46,7 @@ public class EmailService {
 	 String email="";
 	 
 	@PostConstruct
-	void setup() {
+	public void setupEmail() {
 		String server = emailConfig.getHost();
 		properties.put("mail.pop3.host", server);
 		properties.put("mail.pop3.port", emailConfig.getPort());
@@ -64,26 +63,25 @@ public class EmailService {
 	}
 	
 	@Scheduled(fixedRate = 5000)
-	public synchronized String read() throws MessagingException, IOException {
-		 String endpoint = "http://localhost:8080/dispatcher/v1.0/email";
+	public synchronized String readEmail() throws MessagingException, IOException {
+//		 String endpoint = "http://localhost:8080/dispatcher/v1.0/email";
 		 try {
 		
 		emailFolder.open(Folder.READ_ONLY);
 		Message[] messages = emailFolder.getMessages();
 		for (int i = 0; i < messages.length; i++) {
 			Message message = messages[i];
+			 
 			System.out.println("Subject: "+message.getSubject());
 			System.out.println("Body: "+MessageParser.getMessageBody(message));
 			
- 		    //event.setSubject(message.getSubject());
- 		    //event.setBody(MessageParser.getMessageBody(message));
-			DispatcherDb dispatcherDb = new DispatcherDb();
-			dispatcherDb.setAction(endpoint);
-			dispatcherDb.setValidation(message.getSubject());
-			dispatcherDbRepository.save(dispatcherDb);
-			
+//			Event event = new Event();
+//			event.setAction(endpoint);
+//			event.setValidation(message.getSubject());
+//			dispatcherDbRepository.save(event);
+			 {
 			email+="Subject: "+message.getSubject()+"\n"+"Body:"+MessageParser.getMessageBody(message);	
-			
+			}
 			
 		}
 		
@@ -95,21 +93,19 @@ public class EmailService {
 				
 			}
 		 return email;
-	 }		
-	public ResponseEntity<List<String>> getDispatcherDbByValidation(String checkValidation)
-			throws ResourceNotFoundException {
-		
-		LOGGER.info("Start process");
-		
-		
-		    List<DispatcherDb> dispatcherDbs = dispatcherDbRepository.findByValidation(checkValidation);
-		    List<String> actions = new ArrayList<>();
-		    
-		    for(DispatcherDb dispatcherDb: dispatcherDbs) {
-		    	
-		    	actions.add(dispatcherDb.getAction());
-		    	
-		    }
-				return ResponseEntity.ok().body(actions);
-	}
+	 }	
+	
+//	public ResponseEntity<List<String>> getActionsByValidation(String checkValidation)
+//			throws ResourceNotFoundException {
+//		
+//		    List<Event> events = eventRepository.findByValidation(checkValidation);
+//		    List<String> actions = new ArrayList<>();
+//		    
+//		    for(Event event: events) {
+//		    	
+//		    	actions.add(event.getAction());
+//		    	
+//		    }
+//				return ResponseEntity.ok().body(actions);
+//	}
 }
